@@ -39,67 +39,35 @@ your-project/
 
 🛠️ Setup Instructions
 
-1. Clone the Repository
+1. Create a folder on drive to save your project and open it in your Command Line.
 
-git clone https://github.com/your-username/your-project.git
-cd your-project
+2. Run your first command
 
-2. Install Dependencies
+npx create-next-app@latest basic-nextjs-landing-page-boilerplate --typescript
 
-npm install
+after this command, and the set of questions as follows:
 
-or
+Yes to ESLint
+No to Tailwind CSS
+Yes to having code inside a 'src/' directory
+Yes to App Router
+No to Turbopack
+Yes to import alias
+  then enter for default @/*
 
-yarn install
+3. Install missing packages
 
-3. Run the Development Server
-
-npm run dev
-
-or
-
-yarn dev
-
-Open your browser at http://localhost:3000
-
-⸻
-
-📦 Example package.json
-
-{
-  "name": "nextjs-typescript-styled-components-boilerplate",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "styled-components": "^6.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
-    "typescript": "^5.0.0",
-    "babel-plugin-styled-components": "^2.1.0"
-  }
-}
+npm install styled-components
+npm install --save-dev babel-plugin-styled-components
 
 
+3. Open up or create a new file for each subsequent section following the project file system structure and replace or add in their corresponding code blocks below:
 
 ⸻
 
-🧱 Boilerplate Code
+/src/app/page.tsx
 
-/src/pages/index.tsx
-
-import Layout from '@/components/Layout';
+import Layout from '@/app/layout';
 
 export default function Home() {
   return (
@@ -111,28 +79,32 @@ export default function Home() {
 }
 
 
-
 ⸻
 
 /src/components/Layout.tsx
 
-import Header from './Header';
-import Footer from './Footer';
-import GlobalStyle from '@/styles/GlobalStyle';
 import { ReactNode } from 'react';
+import StyledComponentsRegistry from '@/lib/registry';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
-type LayoutProps = {
-  children: ReactNode;
+export const metadata = {
+  title: 'Tiny Global Village',
+  description: 'Landing page boilerplate with Next.js, TypeScript, and Styled-Components.',
 };
 
-export default function Layout({ children }: LayoutProps) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <>
-      <GlobalStyle />
-      <Header />
-      <main>{children}</main>
-      <Footer />
-    </>
+    <html lang="en">
+      <body>
+        <StyledComponentsRegistry>
+          {/* ✅ Global styles applied here inside the registry */}
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </StyledComponentsRegistry>
+      </body>
+    </html>
   );
 }
 
@@ -142,6 +114,7 @@ export default function Layout({ children }: LayoutProps) {
 
 /src/components/Header.tsx
 
+'use client';
 import styled from 'styled-components';
 
 const Nav = styled.nav`
@@ -165,6 +138,7 @@ export default function Header() {
 
 /src/components/Footer.tsx
 
+'use client';
 import styled from 'styled-components';
 
 const FooterContainer = styled.footer`
@@ -207,23 +181,24 @@ const GlobalStyle = createGlobalStyle`
 export default GlobalStyle;
 
 
+/src/lib/registry.tsx
 
-⸻
+'use client';
 
-🖥️ Additional Commands
+import { useState } from 'react';
+import { StyleSheetManager } from 'styled-components';
 
-Command	Description
-npm run dev	Start development server
-npm run build	Build for production
-npm start	Start production server
-npm run lint	Run ESLint (if configured)
+export default function StyledComponentsRegistry({ children }: { children: React.ReactNode }) {
+  const [styledComponentsStyleSheet] = useState(() => new (require('styled-components')).ServerStyleSheet());
 
+  return (
+    <StyleSheetManager sheet={styledComponentsStyleSheet.instance}>
+      {children}
+    </StyleSheetManager>
+  );
+}
 
+4. Test out by running the command and start building.
 
-⸻
-
-🌟 Optional Enhancements
-	•	Add ESLint & Prettier for formatting and linting
-	•	Setup absolute imports via tsconfig.json
-	•	Customize the favicon and metadata
-	•	Implement SEO-friendly <Head> component
+npm run dev
+```
